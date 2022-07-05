@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.profile {
+  @apply h-14 w-14 object-cover shrink-0 rounded-full outline outline-offset-2 outline-2 outline-red-500 cursor-pointer;
+}
+.emoji {
+  @apply h-6 w-6 object-cover shrink-0 cursor-pointer hover:opacity-75;
+}
+.navitems {
+  @apply h-7 w-8 object-cover shrink-0 cursor-pointer;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
