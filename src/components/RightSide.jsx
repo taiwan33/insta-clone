@@ -28,10 +28,7 @@ const RightSide = () => {
             </div>
             <div className='space-y-4'>
                 <Suggestion />
-                <Suggestion />
-                <Suggestion />
-                <Suggestion />
-                <Suggestion />
+
             </div>
             <div className='mt-6'>
                 <Footer />

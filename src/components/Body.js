@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 const Body = () => {
     const [users, setUsers] = useState([]);
     const names = collection(db, "apiforinstagram")
-    console.log(users);
+    // console.log(users);            
     useEffect(() => {
         const getUsers = async () => {
             const data = await getDocs(names);
