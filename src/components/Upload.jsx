@@ -1,60 +1,53 @@
-import { ref, uploadBytes } from 'firebase/storage';
-import React, { useState } from 'react'
-import { UploadImg } from '../assets';
-import { storage } from '../configure';
-import { useDropzone } from 'react-dropzone';
+import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
+import React, { useState } from "react";
+import { UploadImg } from "../assets";
+import { storage } from "../configure";
+import { useDropzone } from "react-dropzone";
+import { v4 } from "uuid";
+import { useEffect } from "react";
 
 const Upload = () => {
-    const [files, setFiles] = useState(null);
-    const { getRootProps, getInputProps } = useDropzone({
-        accept: "image/*",
-        onDrop: (acceptedFiles) => {
-            setFiles(
-                acceptedFiles.map((file) =>
-                    Object.assign(file, {
-                        preview: URL.createObjectURL(file),
-                    })
-                ))
-        }
-    })
+  const [imageUpload, setImageUpload] = useState(null);
+  const [imageList, setImageList] = useState([]);
 
-    const clickHandler = () => {
-        if (files == null) return;
-        const imageRef = ref(storage, `picture/${files.name}`);
-        uploadBytes(imageRef, files).then(() => {
-            alert('uploaded pic');
-        })
-    }
-    const images = files.map((file) => (
-        <div key={file.name}>
-            <div>
-                <img src={file.preview} alt="" />
-            </div>
-        </div>
-    ))
+  const imageListRef = ref(storage, "images/");
+  const uploadImage = () => {
+    if (imageUpload == null) return;
+    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+    uploadBytes(imageRef, imageUpload).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        setImageList((prev) => [...prev, url]);
+      });
+    });
+  };
+  useEffect(() => {
+    listAll(imageListRef).then((response) => {
+      response.items.forEach((item) => {
+        getDownloadURL(item).then((url) => {
+          setImageList((prev) => [...prev, url]);
+        });
+      });
+    });
+  }, []);
+  return (
+    <div className=" py-[18%] text-center items-center space-x-5 space-y-5">
+      <input
+        type="file"
+        onChange={(event) => {
+          setImageUpload(event.target.files[0]);
+        }}
+      />
+      <button
+        className="px-2 py-1 bg-blue-700 text-white"
+        onClick={uploadImage}
+      >
+        Upload Image
+      </button>
+      {imageList.map((url, i) => {
+        return <img key={i} src={url} alt="" />;
+      })}
+    </div>
+  );
+};
 
-    return (
-        <div className=' py-[18%] text-center items-center space-y-5'>
-            <div {...getRootProps()}>
-                <input type='file' {...getInputProps()} onChange={(e) => { setFiles(e.target.files[0]) }} />
-                <div className='flex items-center justify-center relative'>
-                    <UploadImg />
-                </div>
-            </div>
-
-            <div className='text-2xl text-gray-800' >
-                Drag photos and videos here
-            </div>
-            <div>{images}</div>
-            <button onClick={clickHandler}>Submit</button>
-
-            <div className='flex justify-center items-center space-y-6'>
-                <div>
-                    {files && <div>{files.name}</div>}
-                </div>
-            </div>
-        </div>
-    )
-}
-
-export default Upload
+export default Upload;
